@@ -25,7 +25,7 @@ function Live() {
       const e = +(0.18 + Math.random() * 0.18).toFixed(2);
       setEar(e);
       setBlink(12 + Math.floor(Math.random() * 8));
-      setClosedFor(e < 0.21 ? (c => c + 1) as unknown as number : 0);
+      setClosedFor((c) => (e < 0.21 ? c + 1 : 0));
       setStatus(e < 0.20 ? "sleeping" : e < 0.24 ? "drowsy" : "awake");
     }, 1500);
     return () => clearInterval(id);

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
+import { sessionStore } from "@/lib/sessionStore";
 
 export const Route = createFileRoute("/live")({
   component: Live,

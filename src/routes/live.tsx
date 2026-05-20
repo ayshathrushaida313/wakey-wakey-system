@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
+import { sessionStore } from "@/lib/sessionStore";
 
 export const Route = createFileRoute("/live")({
   component: Live,
@@ -75,6 +76,7 @@ function Live() {
     stream?.getTracks().forEach((t) => t.stop());
     if (videoRef.current) videoRef.current.srcObject = null;
     setStreaming(false);
+    sessionStore.set({ active: false, status: "idle" });
   };
 
   useEffect(() => () => stopCamera(), []);
@@ -126,6 +128,50 @@ function Live() {
     : "awake";
 
   const isAlert = status !== "awake" && metrics.faceDetected;
+
+  // Sync into global session store so Dashboard reflects live data
+  useEffect(() => {
+    if (!streaming) {
+      sessionStore.set({ active: false, status: "idle" });
+      return;
+    }
+    // Fatigue score heuristic: low EAR + long closures + low blink rate increase score
+    const earPenalty = Math.max(0, (0.30 - metrics.ear) * 200); // 0..60
+    const closedPenalty = Math.min(40, closedFor * 25);
+    const blinkPenalty = blinkRate > 0 && blinkRate < 8 ? 15 : 0;
+    const score = Math.max(0, Math.min(100, Math.round(earPenalty + closedPenalty + blinkPenalty)));
+
+    sessionStore.set({
+      active: true,
+      startedAt: sessionStore.get().startedAt ?? Date.now(),
+      ear: metrics.ear,
+      blinkRate,
+      blinkCount,
+      closedFor,
+      status,
+      fatigueScore: score,
+    });
+  }, [streaming, metrics.ear, blinkRate, blinkCount, closedFor, status]);
+
+  // Push trend point every 5s while streaming
+  useEffect(() => {
+    if (!streaming) return;
+    const id = setInterval(() => {
+      sessionStore.pushTrend(sessionStore.get().fatigueScore);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [streaming]);
+
+  // Count alerts when status escalates
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (!streaming) return;
+    const prev = prevStatusRef.current;
+    if (prev !== status && status !== "awake") {
+      sessionStore.incAlert(status === "sleeping");
+    }
+    prevStatusRef.current = status;
+  }, [status, streaming]);
 
   // Audible alert beep when sleeping
   useEffect(() => {

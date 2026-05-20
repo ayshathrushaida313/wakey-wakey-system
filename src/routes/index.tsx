@@ -7,9 +7,11 @@ import {
   Eye,
   Timer,
   TrendingUp,
+  TrendingDown,
   Zap,
   Camera,
   ChevronRight,
+  BellRing,
 } from "lucide-react";
 import {
   Area,
@@ -20,6 +22,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useEffect, useState } from "react";
+import { useSession, formatDuration } from "@/lib/sessionStore";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -31,7 +35,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const fatigueData = [
+const seedData = [
   { t: "08:00", score: 18 }, { t: "09:00", score: 22 },
   { t: "10:00", score: 31 }, { t: "11:00", score: 28 },
   { t: "12:00", score: 45 }, { t: "13:00", score: 52 },
@@ -39,7 +43,37 @@ const fatigueData = [
   { t: "16:00", score: 72 }, { t: "17:00", score: 68 },
 ];
 
+function fatigueLabel(score: number) {
+  if (score < 25) return { label: "Low · stay sharp", tone: "success" as const };
+  if (score < 55) return { label: "Moderate · stay alert", tone: "warning" as const };
+  return { label: "High · take a break", tone: "destructive" as const };
+}
+
 function Dashboard() {
+  const session = useSession();
+  const [now, setNow] = useState(Date.now());
+
+  // Tick once per minute for drive time display
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const driveTimeMs = session.startedAt ? now - session.startedAt : 0;
+  const fatigue = fatigueLabel(session.fatigueScore);
+
+  // Build chart data: use live trend if present, otherwise demo seed
+  const liveTrend = session.trend.map((p) => ({
+    t: new Date(p.t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    score: p.score,
+  }));
+  const chartData = liveTrend.length > 3 ? liveTrend : seedData;
+
+  // Trend direction
+  const trendUp =
+    chartData.length >= 2 &&
+    chartData[chartData.length - 1].score > chartData[0].score;
+
   return (
     <AppShell title="Welcome back, Aysha 👋" subtitle="Your drive is being monitored in real time">
       {/* Hero */}
@@ -51,8 +85,8 @@ function Dashboard() {
         <div className="relative flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-black/30 backdrop-blur px-3 py-1 text-xs font-medium text-primary-foreground">
-              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-              System Active · Saturday, 25 April 2026
+              <span className={`h-2 w-2 rounded-full ${session.active ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
+              {session.active ? "System Active" : "System Idle"} · {new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </div>
             <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-primary-foreground">
               Stay sharp, stay safe.
@@ -73,12 +107,21 @@ function Dashboard() {
             <div className="rounded-2xl bg-black/30 backdrop-blur p-5 text-primary-foreground">
               <div className="text-xs uppercase tracking-wider opacity-80">Current Fatigue</div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-5xl font-bold">42</span>
+                <span className="font-display text-5xl font-bold">{session.fatigueScore}</span>
                 <span className="text-sm opacity-80">/ 100</span>
               </div>
-              <div className="mt-1 text-sm font-medium">Moderate · stay alert</div>
+              <div className="mt-1 text-sm font-medium">{fatigue.label}</div>
               <div className="mt-3 h-2 rounded-full bg-black/30 overflow-hidden">
-                <div className="h-full bg-warning" style={{ width: "42%" }} />
+                <div
+                  className={`h-full transition-all duration-500 ${
+                    fatigue.tone === "success"
+                      ? "bg-success"
+                      : fatigue.tone === "warning"
+                      ? "bg-warning"
+                      : "bg-destructive"
+                  }`}
+                  style={{ width: `${session.fatigueScore}%` }}
+                />
               </div>
             </div>
           </div>
@@ -87,10 +130,42 @@ function Dashboard() {
 
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard icon={Eye} label="Blink Rate" value="15/min" hint="Healthy range" tone="success" />
-        <MetricCard icon={Activity} label="EAR" value="0.28" hint="Above threshold" tone="primary" />
-        <MetricCard icon={Timer} label="Drive Time" value="2h 14m" hint="Take a break in 46m" tone="default" />
-        <MetricCard icon={AlertTriangle} label="Alerts Today" value="3" hint="1 critical" tone="warning" />
+        <MetricCard
+          icon={Eye}
+          label="Blink Rate"
+          value={session.active ? `${session.blinkRate}/min` : "—"}
+          hint={
+            !session.active
+              ? "Start camera"
+              : session.blinkRate >= 10 && session.blinkRate <= 25
+              ? "Healthy range"
+              : session.blinkRate < 10
+              ? "Below normal"
+              : "Above normal"
+          }
+          tone={!session.active ? "default" : session.blinkRate >= 10 && session.blinkRate <= 25 ? "success" : "warning"}
+        />
+        <MetricCard
+          icon={Activity}
+          label="EAR"
+          value={session.active ? session.ear.toFixed(2) : "—"}
+          hint={!session.active ? "Start camera" : session.ear < 0.23 ? "Below threshold" : "Above threshold"}
+          tone={!session.active ? "default" : session.ear < 0.23 ? "destructive" : "primary"}
+        />
+        <MetricCard
+          icon={Timer}
+          label="Drive Time"
+          value={session.startedAt ? formatDuration(driveTimeMs) : "0m"}
+          hint={driveTimeMs > 2 * 60 * 60 * 1000 ? "Consider a break" : "Keep going"}
+          tone="default"
+        />
+        <MetricCard
+          icon={AlertTriangle}
+          label="Alerts Today"
+          value={String(session.alertsToday)}
+          hint={`${session.criticalToday} critical`}
+          tone={session.criticalToday > 0 ? "destructive" : session.alertsToday > 0 ? "warning" : "default"}
+        />
       </div>
 
       {/* Charts + side */}
@@ -99,15 +174,20 @@ function Dashboard() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="font-display text-lg font-semibold">Fatigue Trend</h3>
-              <p className="text-xs text-muted-foreground">Last 10 hours</p>
+              <p className="text-xs text-muted-foreground">
+                {liveTrend.length > 3 ? "Live session" : "Sample data — start the camera to record"}
+              </p>
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 text-warning px-2.5 py-1 text-xs font-medium">
-              <TrendingUp className="h-3 w-3" /> Rising
+            <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+              trendUp ? "bg-warning/10 text-warning" : "bg-success/10 text-success"
+            }`}>
+              {trendUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {trendUp ? "Rising" : "Falling"}
             </div>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={fatigueData}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="oklch(0.70 0.25 350)" stopOpacity={0.6} />
@@ -116,7 +196,7 @@ function Dashboard() {
                 </defs>
                 <CartesianGrid stroke="oklch(0.28 0.02 280)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" stroke="oklch(0.65 0.02 280)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="oklch(0.65 0.02 280)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="oklch(0.65 0.02 280)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
                 <Tooltip
                   contentStyle={{
                     background: "oklch(0.20 0.015 280)",
@@ -137,7 +217,7 @@ function Dashboard() {
           <div className="space-y-2">
             {[
               { to: "/live", icon: Camera, label: "Live Monitor", desc: "Open camera feed" },
-              { to: "/alerts", icon: BellIcon, label: "Alert History", desc: "Review past events" },
+              { to: "/alerts", icon: BellRing, label: "Alert History", desc: "Review past events" },
               { to: "/calibration", icon: Zap, label: "Calibrate Eyes", desc: "Tune detection" },
             ].map((a) => (
               <Link
@@ -160,8 +240,4 @@ function Dashboard() {
       </div>
     </AppShell>
   );
-}
-
-function BellIcon(props: React.SVGProps<SVGSVGElement>) {
-  return <AlertTriangle {...props} />;
 }

@@ -41,7 +41,7 @@ const fatigueData = [
 
 function Dashboard() {
   return (
-    <AppShell title="Welcome back, Aarav 👋" subtitle="Your drive is being monitored in real time">
+    <AppShell title="Welcome back, Aysha 👋" subtitle="Your drive is being monitored in real time">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-8 shadow-glow mb-6">
         <div className="absolute inset-0 opacity-20" style={{

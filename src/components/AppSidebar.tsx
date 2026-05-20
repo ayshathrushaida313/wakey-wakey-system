@@ -70,11 +70,11 @@ export function AppSidebar() {
         <div className="rounded-xl bg-sidebar-accent p-3">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-              AS
+              AY
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold truncate text-sidebar-foreground">
-                Aarav Sharma
+                Aysha
               </div>
               <div className="text-xs text-muted-foreground truncate">
                 Driver · ID 02841

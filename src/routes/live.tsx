@@ -76,6 +76,7 @@ function Live() {
     stream?.getTracks().forEach((t) => t.stop());
     if (videoRef.current) videoRef.current.srcObject = null;
     setStreaming(false);
+    sessionStore.set({ active: false, status: "idle" });
   };
 
   useEffect(() => () => stopCamera(), []);

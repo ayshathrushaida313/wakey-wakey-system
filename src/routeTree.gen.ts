@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FatigueRouteImport } from './routes/fatigue'
+import { Route as DriversRouteImport } from './routes/drivers'
 import { Route as CalibrationRouteImport } from './routes/calibration'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const FatigueRoute = FatigueRouteImport.update({
   path: '/fatigue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DriversRoute = DriversRouteImport.update({
+  id: '/drivers',
+  path: '/drivers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalibrationRoute = CalibrationRouteImport.update({
   id: '/calibration',
   path: '/calibration',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/calibration': typeof CalibrationRoute
+  '/drivers': typeof DriversRoute
   '/fatigue': typeof FatigueRoute
   '/history': typeof HistoryRoute
   '/live': typeof LiveRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/calibration': typeof CalibrationRoute
+  '/drivers': typeof DriversRoute
   '/fatigue': typeof FatigueRoute
   '/history': typeof HistoryRoute
   '/live': typeof LiveRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/calibration': typeof CalibrationRoute
+  '/drivers': typeof DriversRoute
   '/fatigue': typeof FatigueRoute
   '/history': typeof HistoryRoute
   '/live': typeof LiveRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/calibration'
+    | '/drivers'
     | '/fatigue'
     | '/history'
     | '/live'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/calibration'
+    | '/drivers'
     | '/fatigue'
     | '/history'
     | '/live'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/calibration'
+    | '/drivers'
     | '/fatigue'
     | '/history'
     | '/live'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   CalibrationRoute: typeof CalibrationRoute
+  DriversRoute: typeof DriversRoute
   FatigueRoute: typeof FatigueRoute
   HistoryRoute: typeof HistoryRoute
   LiveRoute: typeof LiveRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FatigueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/drivers': {
+      id: '/drivers'
+      path: '/drivers'
+      fullPath: '/drivers'
+      preLoaderRoute: typeof DriversRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calibration': {
       id: '/calibration'
       path: '/calibration'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   CalibrationRoute: CalibrationRoute,
+  DriversRoute: DriversRoute,
   FatigueRoute: FatigueRoute,
   HistoryRoute: HistoryRoute,
   LiveRoute: LiveRoute,

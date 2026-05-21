@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { AlertTriangle, Eye, Wind, Filter, Search, X } from "lucide-react";
+import { AlertTriangle, Eye, Filter, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/alerts")({

@@ -5,7 +5,6 @@ import {
   Activity,
   Eye,
   Timer,
-  Wind,
   Camera,
   Volume2,
   Phone,

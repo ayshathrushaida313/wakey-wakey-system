@@ -447,13 +447,6 @@ function Live() {
             hint="Continuous"
             tone={closedFor > 1 ? "destructive" : "default"}
           />
-          <MetricCard
-            icon={Wind}
-            label="Yawning"
-            value={`${yawnCount}x`}
-            hint="Coming soon"
-            tone="warning"
-          />
         </div>
       </div>
     </AppShell>

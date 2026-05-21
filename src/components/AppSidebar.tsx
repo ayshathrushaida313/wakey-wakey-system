@@ -25,7 +25,13 @@ const nav = [
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
-export function AppSidebar() {
+export function AppSidebar({
+  open = false,
+  onClose,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+}) {
   const { pathname } = useLocation();
   const [query, setQuery] = useState("");
 
@@ -36,9 +42,22 @@ export function AppSidebar() {
   }, [query]);
 
   return (
-    <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-[260px] flex-col bg-sidebar border-r border-sidebar-border">
+    <>
+      <button
+        type="button"
+        aria-label="Close sidebar"
+        onClick={onClose}
+        className={`fixed inset-0 z-30 bg-background/70 backdrop-blur-sm transition-opacity lg:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-150 ease-out lg:z-30 lg:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
       <div className="px-6 py-6 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" onClick={onClose} className="flex items-center gap-3">
           <div className="relative h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
             <Eye className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -90,6 +109,7 @@ export function AppSidebar() {
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={onClose}
                 className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                   active
                     ? "bg-gradient-primary text-primary-foreground shadow-glow"
@@ -124,6 +144,7 @@ export function AppSidebar() {
           </div>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

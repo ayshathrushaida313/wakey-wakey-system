@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { AlertTriangle, Eye, Wind, Filter, Search, X } from "lucide-react";
+import { AlertTriangle, Eye, Filter, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/alerts")({
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/alerts")({
 const rows = [
   { time: "10:32 PM", driver: "Aysha", type: "Drowsiness", icon: Eye, severity: "High", color: "warning" },
   { time: "10:35 PM", driver: "Rahul Verma", type: "Eyes Closed", icon: Eye, severity: "Critical", color: "destructive" },
-  { time: "10:41 PM", driver: "Aysha", type: "Yawning", icon: Wind, severity: "Low", color: "success" },
+  
   { time: "10:58 PM", driver: "Priya Singh", type: "Head Tilt", icon: AlertTriangle, severity: "Medium", color: "warning" },
   { time: "11:14 PM", driver: "Rahul Verma", type: "Drowsiness", icon: Eye, severity: "High", color: "warning" },
   { time: "11:20 PM", driver: "Aysha", type: "Sleeping", icon: AlertTriangle, severity: "Critical", color: "destructive" },

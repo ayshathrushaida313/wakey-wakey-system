@@ -44,7 +44,7 @@ function Live() {
   const [closedFor, setClosedFor] = useState(0); // seconds eyes have been closed
   const [blinkCount, setBlinkCount] = useState(0);
   const [blinkRate, setBlinkRate] = useState(0); // per minute
-  const [yawnCount] = useState(0);
+  
 
   const { ready: modelReady, error: modelError, metrics } = useFaceDetection(
     videoRef,

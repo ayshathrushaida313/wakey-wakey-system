@@ -5,7 +5,6 @@ import {
   Activity,
   Eye,
   Timer,
-  Wind,
   Camera,
   Volume2,
   Phone,
@@ -45,7 +44,7 @@ function Live() {
   const [closedFor, setClosedFor] = useState(0); // seconds eyes have been closed
   const [blinkCount, setBlinkCount] = useState(0);
   const [blinkRate, setBlinkRate] = useState(0); // per minute
-  const [yawnCount] = useState(0);
+  
 
   const { ready: modelReady, error: modelError, metrics } = useFaceDetection(
     videoRef,
@@ -447,13 +446,6 @@ function Live() {
             value={`${closedFor.toFixed(1)}s`}
             hint="Continuous"
             tone={closedFor > 1 ? "destructive" : "default"}
-          />
-          <MetricCard
-            icon={Wind}
-            label="Yawning"
-            value={`${yawnCount}x`}
-            hint="Coming soon"
-            tone="warning"
           />
         </div>
       </div>

@@ -52,9 +52,11 @@ function fatigueLabel(score: number) {
 function Dashboard() {
   const session = useSession();
   const [now, setNow] = useState(Date.now());
+  const [dateLabel, setDateLabel] = useState("");
 
   // Tick once per minute for drive time display
   useEffect(() => {
+    setDateLabel(new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, []);

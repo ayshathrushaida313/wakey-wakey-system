@@ -1,6 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { AppSidebar } from "./AppSidebar";
-import { Bell, Search } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 
 export function AppShell({
   children,
@@ -13,6 +13,7 @@ export function AppShell({
   subtitle?: string;
   status?: "monitoring" | "idle" | "alert";
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const statusMap = {
     monitoring: { label: "Live", color: "bg-success" },
     idle: { label: "Idle", color: "bg-muted-foreground" },
@@ -22,10 +23,18 @@ export function AppShell({
 
   return (
     <div className="min-h-screen">
-      <AppSidebar />
+      <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="lg:pl-[260px]">
         <header className="sticky top-0 z-20 backdrop-blur-xl bg-background/70 border-b border-border">
           <div className="flex items-center gap-4 px-6 lg:px-8 h-16">
+            <button
+              type="button"
+              aria-label="Open sidebar"
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-muted hover:bg-secondary transition-colors lg:hidden"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
             <div className="min-w-0">
               <div className="flex items-center gap-3">
                 <h1 className="font-display text-lg font-semibold truncate">

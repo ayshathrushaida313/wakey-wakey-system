@@ -52,9 +52,11 @@ function fatigueLabel(score: number) {
 function Dashboard() {
   const session = useSession();
   const [now, setNow] = useState(Date.now());
+  const [dateLabel, setDateLabel] = useState("");
 
   // Tick once per minute for drive time display
   useEffect(() => {
+    setDateLabel(new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, []);
@@ -86,7 +88,7 @@ function Dashboard() {
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-black/30 backdrop-blur px-3 py-1 text-xs font-medium text-primary-foreground">
               <span className={`h-2 w-2 rounded-full ${session.active ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
-              {session.active ? "System Active" : "System Idle"} · {new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              {session.active ? "System Active" : "System Idle"}{dateLabel ? ` · ${dateLabel}` : ""}
             </div>
             <h2 className="mt-4 font-display text-3xl md:text-4xl font-bold text-primary-foreground">
               Stay sharp, stay safe.

@@ -15,18 +15,19 @@ The dashboard includes:
 - Eye calibration settings
 
 ## 🛠️ Tech Stack
-- **Python**
-- **OpenCV** – real-time video processing
-- **dlib** – facial landmark detection
-- **EAR (Eye Aspect Ratio) Algorithm** – drowsiness detection logic
-- **Telegram Bot API** – instant alert notifications
+- **React 19 + TypeScript**
+- **TanStack Start / TanStack Router** – app framework and routing
+- **MediaPipe FaceLandmarker** – real-time facial landmark detection (468-point model)
+- **EAR (Eye Aspect Ratio) Algorithm** – drowsiness detection logic (Soukupová & Čech method)
+- **Tailwind CSS + Radix UI** – dashboard UI
+- **Vite** – build tooling
 
 ## ⚙️ How It Works
-1. Captures live video feed from a camera
-2. Detects facial landmarks using dlib
-3. Calculates Eye Aspect Ratio (EAR) to track eye closure
+1. Captures live video feed from the browser camera
+2. Detects facial landmarks in real time using MediaPipe FaceLandmarker
+3. Calculates Eye Aspect Ratio (EAR) from eye landmark points
 4. If EAR falls below a threshold for a set duration, the system flags drowsiness
-5. Sends a real-time alert via Telegram Bot API
+5. Displays a live fatigue score, blink rate, and alerts on the dashboard
 
 ## 📌 Use Case
 Designed for driver safety systems — can be integrated into vehicles or used as a standalone monitoring tool.
@@ -35,8 +36,8 @@ Designed for driver safety systems — can be integrated into vehicles or used a
 ```bash
 git clone https://github.com/ayshathrushaida313/wakey-wakey-system.git
 cd wakey-wakey-system
-pip install -r requirements.txt
-python main.py
+npm install
+npm run dev
 ```
 
 ## 📈 Future Improvements
